@@ -1,0 +1,55 @@
+plugins {
+	id 'fabric-loom' version '1.13-SNAPSHOT'
+	id 'maven-publish'
+}
+
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
+
+archivesBaseName = project.archives_base_name + "-fabric"
+version = project.minecraft_version + "-" + project.mod_version
+group = project.maven_group
+
+repositories {
+	maven { url "https://maven.terraformersmc.com" }
+	maven { url "https://maven.shedaniel.me" }
+	maven {
+		name = 'Ladysnake Mods'
+		url = 'https://maven.ladysnake.org/releases'
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	modImplementation files('libs/trinkets-3.11.1.jar')
+	modImplementation files('libs/cloth-config-21.11.153-fabric.jar')
+	compileOnly files('libs/cca-api.jar')
+	compileOnly files('libs/cca-base.jar')
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+	it.options.encoding = "UTF-8"
+}
+
+java {
+	withSourcesJar()
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
+}
